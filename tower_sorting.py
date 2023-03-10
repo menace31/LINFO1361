@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-"""
-Name of the author(s):
-- Auguste Burlats <auguste.burlats@uclouvain.be>
-"""
+
 import time
 import sys
 from copy import deepcopy
@@ -76,7 +72,7 @@ class State:
         return (self.number == other.number and self.size == other.size and self.grid == other.grid)
 
     def __hash__(self):
-        return hash((self.number, self.size, tuple(map(tuple, self.grid)), self.move))
+        return hash(str(self.grid))
 
 
 ######################
@@ -120,7 +116,7 @@ if __name__ == "__main__":
     
     # Example of search
     start_timer = time.perf_counter()
-    node, nb_explored, remaining_nodes = breadth_first_graph_search(problem)
+    node, nb_explored, remaining_nodes = depth_first_graph_search(problem)
     end_timer = time.perf_counter()
 
     # Example of print
@@ -130,7 +126,4 @@ if __name__ == "__main__":
         # assuming that the __str__ function of state outputs the correct format
         print(n.state)
 
-    print("* Execution time:\t", str(end_timer - start_timer))
-    print("* Path cost to goal:\t", node.depth, "moves")
-    print("* #Nodes explored:\t", nb_explored)
-    print("* Queue size at goal:\t",  remaining_nodes)
+    print(f"{str(end_timer - start_timer)} & {nb_explored} & {remaining_nodes}")
