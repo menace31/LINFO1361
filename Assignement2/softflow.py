@@ -38,6 +38,11 @@ class SoftFlow(Problem):
         if (state.grid[action[1][0]][action[1][1]].isdigit() == False):
             new_state.grid[action[1][0]][action[1][1]] = action[0]
         new_pos[value] = action[1]
+        if(self.distance2(new_pos[value],state.exam[value])):
+            del new_pos[value]
+            del state.exam[value]
+        print(new_state)
+        print(new_state.pos)
         return new_state
 
     def goal_test(self, state):
@@ -52,6 +57,14 @@ class SoftFlow(Problem):
             h+= abs(pos[1] - exam[1])
 
         return h
+    
+    def distance2(self,pos,exam):
+        h = 0
+        h+= abs(pos[0] - exam[0])
+        h+= abs(pos[1] - exam[1])
+        if h <= 1:
+            return True
+        return False
         
 
     def load(path):
