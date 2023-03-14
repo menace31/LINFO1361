@@ -40,10 +40,8 @@ class SoftFlow(Problem):
             new_state.grid[action[1][0]][action[1][1]] = action[0]
         new_pos[value] = action[1]
 
-        nn = 
 
         self.liste.append(new_pos)
-        print(state)
         return new_state
 
     def goal_test(self, state):
@@ -154,7 +152,6 @@ def test():
     path = node.path()
 
     print('Number of moves: ', str(node.depth))
-    print(node.state)
     for n in path:
         print(n.state)  # assuming that the _str_ function of state outputs the correct format
         print()
