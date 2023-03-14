@@ -13,11 +13,11 @@ class SoftFlow(Problem):
         
     def actions(self, state):
         actions = []
-        for pos, exam in zip(state.pos, state.exam):
+        for pos, exam in zip(state.pos.values(), state.exam.values()):
             x, y = pos
             listes_poss = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
             for poss in listes_poss:
-                if state.grid[poss[0]][poss[1]] == " " or poss == exam:
+                if state.grid[poss[0]][poss[1]] == " " and self.distance2(pos,exam) == False:
                     actions.append((state.grid[x][y],poss))
         return actions
 
@@ -26,23 +26,19 @@ class SoftFlow(Problem):
         for i in state.grid:
             new_grid.append(i[:])
 
-        new_pos = []
-        for i in state.pos:
-            new_pos.append(i[:])
+        new_pos = state.pos.copy()
 
         new_state = State(new_grid, new_pos, state.exam)
-        value = ord(action[0])-97
-        if(value < 0):
-            value += 48
+        value = action[0]
         new_state.grid[state.pos[value][0]][state.pos[value][1]] = str(value)
         if (state.grid[action[1][0]][action[1][1]].isdigit() == False):
             new_state.grid[action[1][0]][action[1][1]] = action[0]
         new_pos[value] = action[1]
-        if(self.distance2(new_pos[value],state.exam[value])):
-            del new_pos[value]
-            del state.exam[value]
+        char = str(ord(action[0])-97)
+        if(self.distance2(new_pos[action[0]],state.exam[char])):
+            del new_pos[action[0]]
+
         print(new_state)
-        print(new_state.pos)
         return new_state
 
     def goal_test(self, state):
@@ -51,7 +47,7 @@ class SoftFlow(Problem):
     def h(self, node):
         state = node.state
         h = 0
-        for pos,exam in zip(state.pos,state.exam):
+        for pos,exam in zip(state.pos.values(), state.exam.values()):
             
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
@@ -104,17 +100,15 @@ class State:
     def from_string(string):
         lines = string.strip().splitlines()
         grid = list(map(lambda x: list(x.strip()), lines))
-        pos = []
-        exam = []
+        pos = {}
+        exam = {}
         for i, line in enumerate(lines):
             for j, x in enumerate(line.strip()):
                 if(x != "#" and x!= " "):
                     if x.isalpha():
-                        pos.append((i, j))
+                        pos[x] = (i, j)
                     else:
-                        exam.append((i, j))
-        pos.sort()
-        exam.sort()
+                        exam[x] = (i, j)
         return State(grid, pos, exam)
 
 
