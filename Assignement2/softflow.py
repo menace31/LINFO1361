@@ -59,7 +59,7 @@ class SoftFlow(Problem):
             
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
-        return h+(100/self.nbr(state))
+        return h+(100/self.nbr(state))                                                          # calcule l'heuristique et ajoute une valeur indirectement proportionnelle au nombre d'agent ayant trouvé leur goal
 
     
     def nbr(self,state):
