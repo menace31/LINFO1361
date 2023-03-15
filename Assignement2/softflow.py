@@ -19,7 +19,7 @@ class SoftFlow(Problem):
             x, y = state.pos[pos]
             listes_poss = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)] 
             for poss in listes_poss:                                                            # regarde toutes les actions possible
-                if state.grid[poss[0]][poss[1]] == " " and self.liste.count(state.grid)==0:     # et verifie qu'elle est legal.
+                if state.grid[poss[0]][poss[1]] == " ":                                         # et verifie qu'elle est legal.
                     actions.append((pos,poss))
         return actions
     
@@ -37,7 +37,7 @@ class SoftFlow(Problem):
             new_state.grid[x][y] = lettre                                                       #       - si non -> nouvelle position = lettre de l'agent
         else:
             new_state.grid[x][y] = value                                                        #       - si oui -> nouvelle position = numéro de l'objectif
-            new_state.conn = state.conn+1                                                        
+
         new_state.pos[lettre] =(x,y)                                                            # actualise la position de l'agent
 
 
@@ -59,9 +59,16 @@ class SoftFlow(Problem):
             
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
+        return h+(100/self.nbr(state))
 
-        return h+(100/state.conn)
     
+    def nbr(self,state):
+        count = 1
+
+        for key in state.pos:
+            if self.distance(state.pos[key],state.exam[str(ord(key)-97)]):
+                count += 1
+        return count
     
     def distance(self,pos,exam):
         h = 0
@@ -88,13 +95,13 @@ class SoftFlow(Problem):
 
 class State:
 
-    def __init__(self, grid,pos={},exam={},conn = 1):
+    def __init__(self, grid,pos={},exam={}):
         self.nbr = len(grid)
         self.nbc = len(grid[0])
         self.grid = grid
         self.pos = pos
         self.exam = exam
-        self.conn = conn
+
 
     def posexam(self):
         for i, line in enumerate(self.grid):
@@ -127,7 +134,7 @@ class State:
         new_exam = self.exam.copy()
         new_grid = [i[:] for i in self.grid]
 
-        return State(new_grid, new_pos, new_exam, self.conn)
+        return State(new_grid, new_pos, new_exam)
 
 
 
