@@ -11,15 +11,20 @@ class SoftFlow(Problem):
         super().__init__(initial)
         self.state_intit = initial
         self.state_intit.posexam()                                                             # initialise l'état initial (position et objectif)
-        self.liste = []
+        self.store = []
         
     def actions(self, state):
         actions = []
         for pos in state.pos:                                                                   #pour chaque (agent/objectif) différents:
             x, y = state.pos[pos]
             listes_poss = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)] 
-            for poss in listes_poss:                                                            # regarde toutes les actions possible
-                if state.grid[poss[0]][poss[1]] == " ":                                         # et verifie qu'elle est legal.
+            for poss in listes_poss:
+                new_pos = state.pos.copy()
+                new_pos[pos] = poss                                                             # regarde toutes les actions possible
+                string = ""
+                for i in state.pos:
+                    string+=i+str(new_pos[i])
+                if state.grid[poss[0]][poss[1]] == " " and self.store.count(string) == 0:                                         # et verifie qu'elle est legal.
                     actions.append((pos,poss))
         return actions
     
@@ -39,9 +44,11 @@ class SoftFlow(Problem):
             new_state.grid[x][y] = value                                                        #       - si oui -> nouvelle position = numéro de l'objectif
 
         new_state.pos[lettre] =(x,y)                                                            # actualise la position de l'agent
+        string = ""
+        for i in new_state.pos:
+            string+=i+str(new_state.pos[i])
+        self.store.append(string)
 
-
-        self.liste.append(new_state.pos)
         return new_state
 
     def goal_test(self, state):
@@ -50,7 +57,7 @@ class SoftFlow(Problem):
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
 
-        return h == len(state.pos)                                                              # vérifie si tous les agents sont à une distant de 1 de l'objectif (siils sont à coté)     
+        return h == len(state.pos)                                                            # vérifie si tous les agents sont à une distant de 1 de l'objectif (siils sont à coté)     
 
     def h(self, node):
         state = node.state
@@ -59,7 +66,7 @@ class SoftFlow(Problem):
             
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
-        return h+(100/self.nbr(state))                                                          # calcule l'heuristique et ajoute une valeur indirectement proportionnelle au nombre d'agent ayant trouvé leur goal
+        return h+(100/self.nbr(state))                                                               # calcule l'heuristique et ajoute une valeur indirectement proportionnelle au nombre d'agent ayant trouvé leur goal
 
     
     def nbr(self,state):
@@ -69,6 +76,7 @@ class SoftFlow(Problem):
             if self.distance(state.pos[key],state.exam[str(ord(key)-97)]):
                 count += 1
         return count
+    
     
     def distance(self,pos,exam):
         h = 0
