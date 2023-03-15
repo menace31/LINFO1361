@@ -10,52 +10,47 @@ class SoftFlow(Problem):
     def __init__(self, initial):
         super().__init__(initial)
         self.state_intit = initial
-        self.state_intit.posexam()
+        self.state_intit.posexam()                                                             # initialise l'état initial (position et objectif)
         self.liste = []
         
     def actions(self, state):
         actions = []
-        new_pos = state.pos.copy()
-        for pos, exam in zip(state.pos, state.exam.values()):
+        for pos in state.pos:                                                                   #pour chaque (agent/objectif) différents:
             x, y = state.pos[pos]
-            listes_poss = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
-            for poss in listes_poss:
-                new_pos[pos] = (x,y)
-                if state.grid[poss[0]][poss[1]] == " " and self.liste.count(state.grid)==0:
-                    actions.append((state.grid[x][y],poss))
+            listes_poss = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)] 
+            for poss in listes_poss:                                                            # regarde toutes les actions possible
+                if state.grid[poss[0]][poss[1]] == " " and self.liste.count(state.grid)==0:     # et verifie qu'elle est legal.
+                    actions.append((pos,poss))
         return actions
+    
 
     def result(self, state, action):
-        new_grid = []
-        for i in state.grid:
-            new_grid.append(i[:])
 
-        new_pos = state.pos.copy()
-        new_exam = state.exam.copy()
+        lettre,(x,y) = action                                                                   # initialisation en décomposant (position,lettre de l'agent qui bouge,valeur de son objectif)
+        value = str(ord(lettre)-97)
 
-        new_state = State(new_grid, new_pos, new_exam)
-        value = action[0]
-        new_state.grid[state.pos[value][0]][state.pos[value][1]] = str(ord(value)-97)
-        if (state.grid[action[1][0]][action[1][1]].isdigit() == False):
-            new_state.grid[action[1][0]][action[1][1]] = action[0]
-        new_pos[value] = action[1]
+        new_state = state.copy()
+        
+        new_state.grid[state.pos[lettre][0]][state.pos[lettre][1]] = value                      # remplace l'ancienne position de l'agent par la valeur associé
+
+        if (self.distance((x,y),new_state.exam[value]) == False):                               # verifie si touche l'objectif
+            new_state.grid[x][y] = lettre                                                       #       - si non -> nouvelle position = lettre de l'agent
+        else:
+            new_state.grid[x][y] = value                                                        #       - si oui -> nouvelle position = numéro de l'objectif
+            new_state.conn = state.conn+1                                                        
+        new_state.pos[lettre] =(x,y)                                                            # actualise la position de l'agent
 
 
-        self.liste.append(new_pos)
+        self.liste.append(new_state.pos)
         return new_state
 
     def goal_test(self, state):
         h = 0
-        for pos,exam in zip(state.pos.values(), state.exam.values()):
-            
+        for pos,exam in zip(state.pos.values(), state.exam.values()):                           # calcul la somme des distances Manathan de tous les agents
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
-        if(h <=len(state.pos)):
-            for i in range (len(state.grid)):
-                for j in range (len(state.grid[i])):
-                    if state.grid[i][j].isalpha():
-                        state.grid[i][j] = str(ord(state.grid[i][j])-97)
-        return h <=len(state.pos)
+
+        return h == len(state.pos)                                                              # vérifie si tous les agents sont à une distant de 1 de l'objectif (siils sont à coté)     
 
     def h(self, node):
         state = node.state
@@ -65,18 +60,10 @@ class SoftFlow(Problem):
             h+= abs(pos[0] - exam[0])
             h+= abs(pos[1] - exam[1])
 
-        return h+(100/self.nbr(state))
-
+        return h+(100/state.conn)
     
-    def nbr(self,state):
-        count = 1
-
-        for key in state.pos:
-            if self.distance2(state.pos[key],state.exam[str(ord(key)-97)]):
-                count += 1
-        return count
     
-    def distance2(self,pos,exam):
+    def distance(self,pos,exam):
         h = 0
         h+= abs(pos[0] - exam[0])
         h+= abs(pos[1] - exam[1])
@@ -101,12 +88,13 @@ class SoftFlow(Problem):
 
 class State:
 
-    def __init__(self, grid,pos={},exam={}):
+    def __init__(self, grid,pos={},exam={},conn = 1):
         self.nbr = len(grid)
         self.nbc = len(grid[0])
         self.grid = grid
         self.pos = pos
         self.exam = exam
+        self.conn = conn
 
     def posexam(self):
         for i, line in enumerate(self.grid):
@@ -133,6 +121,13 @@ class State:
         grid = list(map(lambda x: list(x.strip()), lines))
 
         return State(grid)
+    
+    def copy(self):
+        new_pos = self.pos.copy()
+        new_exam = self.exam.copy()
+        new_grid = [i[:] for i in self.grid]
+
+        return State(new_grid, new_pos, new_exam, self.conn)
 
 
 
@@ -144,16 +139,12 @@ class State:
 
 problem = SoftFlow.load(sys.argv[1])
 
-
-
 # example of print
-def test():
-    node = astar_search(problem)
-    path = node.path()
 
-    print('Number of moves: ', str(node.depth))
-    for n in path:
-        print(n.state)  # assuming that the _str_ function of state outputs the correct format
-        print()
+node = astar_search(problem)
+path = node.path()
 
-test()
+print('Number of moves: ', str(node.depth))
+for n in path:
+    print(n.state)  # assuming that the _str_ function of state outputs the correct format
+    print()
