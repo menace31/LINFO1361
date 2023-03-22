@@ -1,6 +1,6 @@
 from search import *
 import copy
-
+import time
 #################
 # Problem class #
 #################
@@ -12,6 +12,7 @@ class SoftFlow(Problem):
         self.state_intit = initial
         self.state_intit.posexam()                                                             # initialise l'état initial (position et objectif)
         self.store = []
+        self.noeuds = 0
         
     def actions(self, state):
         actions = []
@@ -24,7 +25,7 @@ class SoftFlow(Problem):
                 string = ""
                 for i in state.pos:
                     string+=i+str(new_pos[i])
-                if state.grid[poss[0]][poss[1]] == " " and self.store.count(string) == 0:                                         # et verifie qu'elle est legal.
+                if state.grid[poss[0]][poss[1]] == " " :       # et verifie qu'elle est legal.
                     actions.append((pos,poss))
         return actions
     
@@ -33,7 +34,7 @@ class SoftFlow(Problem):
 
         lettre,(x,y) = action                                                                   # initialisation en décomposant (position,lettre de l'agent qui bouge,valeur de son objectif)
         value = str(ord(lettre)-97)
-
+        self.noeuds +=1
         new_state = state.copy()
         
         new_state.grid[state.pos[lettre][0]][state.pos[lettre][1]] = value                      # remplace l'ancienne position de l'agent par la valeur associé
@@ -44,29 +45,28 @@ class SoftFlow(Problem):
             new_state.grid[x][y] = value                                                        #       - si oui -> nouvelle position = numéro de l'objectif
 
         new_state.pos[lettre] =(x,y)                                                            # actualise la position de l'agent
-        string = ""
-        for i in new_state.pos:
-            string+=i+str(new_state.pos[i])
-        self.store.append(string)
 
         return new_state
 
     def goal_test(self, state):
         h = 0
-        for pos,exam in zip(state.pos.values(), state.exam.values()):                           # calcul la somme des distances Manathan de tous les agents
-            h+= abs(pos[0] - exam[0])
-            h+= abs(pos[1] - exam[1])
+        for i in state.pos:
+            exam = str(ord(i) - 97)
+                      # calcul la somme des distances Manathan de tous les agents
+            h+= abs(state.pos[i][0] - state.exam[exam][0])
+            h+= abs(state.pos[i][1] - state.exam[exam][1])
 
         return h == len(state.pos)                                                            # vérifie si tous les agents sont à une distant de 1 de l'objectif (siils sont à coté)     
 
     def h(self, node):
         state = node.state
         h = 0
-        for pos,exam in zip(state.pos.values(), state.exam.values()):
-            
-            h+= abs(pos[0] - exam[0])
-            h+= abs(pos[1] - exam[1])
-        return h+(100/self.nbr(state))                                                               # calcule l'heuristique et ajoute une valeur indirectement proportionnelle au nombre d'agent ayant trouvé leur goal
+        for i in state.pos:
+            exam = str(ord(i) - 97)
+            h+= abs(state.pos[i][0] - state.exam[exam][0])
+            h+= abs(state.pos[i][1] - state.exam[exam][1])
+  
+        return h+(20/self.nbr(state))                                                               # calcule l'heuristique et ajoute une valeur indirectement proportionnelle au nombre d'agent ayant trouvé leur goal
 
     
     def nbr(self,state):
@@ -85,7 +85,7 @@ class SoftFlow(Problem):
         if h <= 1:
             return True
         return False
-        
+
 
     def load(path):
         with open(path, 'r') as f:
@@ -119,6 +119,7 @@ class State:
                         self.pos[x] = (i, j)
                     else:
                         self.exam[x] = (i, j)
+
     def __str__(self):
         return '\n'.join(''.join(row) for row in self.grid)
 
@@ -133,9 +134,9 @@ class State:
 
     def from_string(string):
         lines = string.strip().splitlines()
-        grid = list(map(lambda x: list(x.strip()), lines))
-
-        return State(grid)
+        return State(list(
+            map(lambda x: list(x.strip()), lines)
+        ))
     
     def copy(self):
         new_pos = self.pos.copy()
@@ -145,7 +146,15 @@ class State:
         return State(new_grid, new_pos, new_exam)
 
 
-
+def measure_time():
+    start_time = time.time() # temps de depart
+    
+    astar_search(problem)
+    
+    end_time = time.time() # temps d'arrivée
+    elapsed_time = end_time - start_time # temps d'exécution
+    
+    print(f"Temps d'exécution: {elapsed_time:.6f} secondes") # imprimer le temps d'exécution avec 6 décimales
 
 
 #####################
@@ -156,10 +165,11 @@ problem = SoftFlow.load(sys.argv[1])
 
 # example of print
 
+#measure_time()
 node = astar_search(problem)
 path = node.path()
-
 print('Number of moves: ', str(node.depth))
-for n in path:
-    print(n.state)  # assuming that the _str_ function of state outputs the correct format
-    print()
+# for n in path:
+#     print(n.state)  # assuming that the _str_ function of state outputs the correct format
+#     print()
+# print(problem.state_intit)
