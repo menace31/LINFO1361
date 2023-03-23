@@ -35,7 +35,7 @@ class MyAgent(AlphaBetaAgent):
   search has to stop and false otherwise.
   """
   def cutoff(self, state, depth):
-    if depth >= 1:
+    if depth >= 1 or state.game_over():
        return True
     else:
        return False
@@ -45,7 +45,15 @@ class MyAgent(AlphaBetaAgent):
   representing the utility function of the board.
   """
   def evaluate(self, state: PontuState):
-    return state.get_scores()[(state.turns+1)%2]
+    score = 0
+    for pawn in range(len(state.cur_pos[1])):
+        ajd = state.adj_bridges((state.get_cur_player()+1)%2,pawn)
+        for i in ajd.values():
+            if i:
+              score +=1
+    print(score)
+    return score
+              
 
 
 """
