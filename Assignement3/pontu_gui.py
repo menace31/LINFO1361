@@ -73,9 +73,9 @@ class GUIState():
             font = pygame.font.Font("freesansbold.ttf", 24)
 
             if state.get_winner() == 0:
-                text = font.render(" Green wins! ", True, "green", "black")
+                text = font.render(" joueur 1 win!", True, "green", "black")
             elif state.get_winner() == 1:
-                text = font.render(" Red wins! ", True, "red", "black")
+                text = font.render(" joueur 2 win!", True, "red", "black")
             else:
                 text = font.render(" Tie! ", True, "white", "black")
 

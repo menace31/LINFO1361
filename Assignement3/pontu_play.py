@@ -27,5 +27,11 @@ if __name__ == '__main__':
   agent0.set_id(0)
   agent1 = getattr(__import__(agent1), 'MyAgent')()
   agent1.set_id(1)
+  print(agent0.get_name()+" = joueur 1")
+  print(agent1.get_name()+" = joueur 2")
   res = play_game(initial_state, [agent0.get_name(), agent1.get_name()], [agent0, agent1], time_out, display_gui)
-  print(res)
+  if(res[0] == 1):
+    print("win",agent0.get_name())
+  else:
+    print("win",agent1.get_name())
+  

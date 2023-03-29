@@ -93,6 +93,7 @@ class MyAgent(Agent):
 				if event.type == pygame.QUIT:
 					pygame.quit()
 					return ('rage-quit', None, None, None, None)
+		print(action)
 		return action
   
 	def get_name(self):
