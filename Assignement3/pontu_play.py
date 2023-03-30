@@ -30,7 +30,7 @@ if __name__ == '__main__':
   print(agent0.get_name()+" = joueur 1")
   print(agent1.get_name()+" = joueur 2")
   res = play_game(initial_state, [agent0.get_name(), agent1.get_name()], [agent0, agent1], time_out, display_gui)
-  if(res[0] == 1):
+  if(res[0] == 0):
     print("win",agent0.get_name())
   else:
     print("win",agent1.get_name())

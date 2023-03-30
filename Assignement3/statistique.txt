@@ -1,4 +1,22 @@
+  Maxime vs random agent
+
+      4 maxime
+Time: 19.246218844
+
+
+  Maxime vs basic agent
+
+      2 maxime
+Time: 8.992285459
+
+
   Maxime vs Romain
 
-     10 maxime
-     10 romain
+      2 maxime
+Time: 8.873644613
+
+
+  old Maxime vs Maxime
+
+      2 maxime
+Time: 12.163756281
