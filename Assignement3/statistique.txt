@@ -2,19 +2,4 @@
 
   Maxime vs random_agent
       2 maxime
-    Time: 20 secondes
-
-
-  Maxime vs basic_agent
-      2 maxime
-    Time: 102 secondes
-
-
-  Maxime vs romain_agent
-      2 maxime
-    Time: 102 secondes
-
-
-  Maxime vs old_maxime_agent
-      2 maxime
-    Time: 48 secondes
+    Time: 392 secondes
